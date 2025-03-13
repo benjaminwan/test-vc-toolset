@@ -1,0 +1,69 @@
+name: windows test vc toolset
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        list:
+          - { win_ver: 2019 }
+          - { win_ver: 2022 }
+          - { win_ver: 2025 }
+        toolset:
+          - "v140"
+          - "v141"
+          - "v142"
+          - "v143"
+          - 14
+          - "14.0"
+          - 14.1
+          - 14.2
+          - 14.3
+          - 14.4
+          - 14.5
+          - 14.21
+          - 14.22
+          - 14.23
+          - 14.24
+          - 14.25
+          - 14.26
+          - 14.27
+          - 14.28
+          - 14.29
+          - 14.31
+          - 14.32
+          - 14.33
+          - 14.34
+          - 14.35
+          - 14.36
+          - 14.37
+          - 14.38
+          - 14.39
+          - 14.41
+          - 14.42
+          - 14.43
+          - 14.44
+          - 14.45
+          - 14.46
+          - 14.47
+          - 14.48
+          - 14.49
+
+    runs-on: windows-${{ matrix.list.win_ver }}
+
+    name: windows-${{ matrix.list.win_ver }}-${{ matrix.toolset }}
+
+    steps:
+      - uses: TheMrMilchmann/setup-msvc-dev@v3
+        with:
+          arch: x64
+          toolset: ${{ matrix.toolset }}
+      # https://learn.microsoft.com/cpp/build/reference/help-compiler-command-line-help
+      - run: |
+          "CL_VERSION=$(cl /? 2>&1 | Select-String -Pattern 'Compiler Version' -CaseSensitive -SimpleMatch)" | Out-File -Append -FilePath ${env:\GITHUB_OUTPUT}
+        shell: pwsh
+        id: cl
+      - run: echo '::warning ::${{ matrix.os }} + toolset-${{ matrix.toolset }} = ${{ steps.cl.outputs.CL_VERSION }}'
